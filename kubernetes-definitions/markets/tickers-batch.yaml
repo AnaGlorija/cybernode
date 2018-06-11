@@ -1,0 +1,37 @@
+# Storer Deployment
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  namespace: markets
+  name: tickers-batch
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      namespace: markets
+      labels:
+        app: tickers-batch
+    spec:
+      containers:
+      - env:
+        - name: CASSANDRA_HOSTS
+          value: elassandra
+        - name: CM_LOG_LEVEL
+          value: INFO
+        - name: LAG_FROM_REAL_TIME_MIN
+          value: "180"
+        - name: JAVA_OPTS
+          value: -Xms11520m -Xmx11520m
+        image: cybernode/cm-tickers-batch:latest
+        name: tickers-batch
+        resources:
+          requests:
+            cpu: "1"
+            memory: "15Gi"
+          limits:
+            cpu: "2"
+            memory: "15Gi"
+        imagePullPolicy: Always
+      restartPolicy: Always
